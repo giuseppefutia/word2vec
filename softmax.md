@@ -1,4 +1,4 @@
-$$\begin{aligned}
+$ \begin{align}
 \dfrac{d}{dx} \sigma(x) &= \dfrac{d}{dx} \left[ \dfrac{1}{1 + e^{-x}} \right] \\
 &= \dfrac{d}{dx} \left( 1 + \mathrm{e}^{-x} \right)^{-1} \\
 &= -(1 + e^{-x})^{-2}(-e^{-x}) \\
@@ -7,4 +7,5 @@ $$\begin{aligned}
 &= \dfrac{1}{1 + e^{-x}\ } \cdot \dfrac{(1 + e^{-x}) - 1}{1 + e^{-x}}  \\
 &= \dfrac{1}{1 + e^{-x}\ } \cdot \left( \dfrac{1 + e^{-x}}{1 + e^{-x}} - \dfrac{1}{1 + e^{-x}} \right) \\
 &= \dfrac{1}{1 + e^{-x}\ } \cdot \left( 1 - \dfrac{1}{1 + e^{-x}} \right) \\
-&= \sigma(x) \cdot (1 - \sigma(x))\end{aligned}$$
+&= \sigma(x) \cdot (1 - \sigma(x))
+\end{align} $
