@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+import numpy as np
+import random
+
 def softmax(x):
     """Compute the softmax function for each row of the input x.
 
@@ -38,3 +41,34 @@ def softmax(x):
 
         # Softmax is invariant to constant offsets. I make this operation for numerical stability
         x = (np.exp(x - vector_max_value)) / sum(np.exp(x - vector_max_value))
+
+def sigmoid(x):
+    """
+    Compute the sigmoid function for the input here.
+
+    Arguments:
+    x -- A scalar or numpy array.
+
+    Return:
+    s -- sigmoid(x)
+    """
+
+    s = 1. / (1. + np.exp(-x))
+    return s
+
+def sigmoid_grad(s):
+    """
+    Compute the gradient for the sigmoid function here. Note that
+    for this implementation, the input s should be the sigmoid
+    function value of your original input x.
+
+    Arguments:
+    s -- A scalar or numpy array.
+
+    Return:
+    ds -- Your computed gradient.
+    """
+
+    ds = s * (1 - s) # It is calculated exploiting the chain rule of derivation
+
+    return ds
