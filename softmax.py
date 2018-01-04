@@ -11,9 +11,7 @@ TODO: Test softmax gradient
 """
 
 def softmax(x):
-    """Compute the softmax function for each row of the input x.
-    For more information you can see: http://cs231n.github.io/neural-networks-case-study/.
-
+    """
     Arguments:
     x -- A N dimensional vector or M x N dimensional numpy matrix.
 
