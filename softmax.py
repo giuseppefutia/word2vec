@@ -4,72 +4,81 @@ import numpy as np
 
 """
 TODO: Better check to identify a matrix or a vector
-TODO: Add more complex test
-TODO: Check assertion error in the current test
-TODO: Implement softmax gradient
-TODO: Test softmax gradient
+TODO: Implement softmax gradient for vector
 """
 
-def softmax(x):
+def softmax(Z):
     """
     Arguments:
-    x -- A N dimensional vector or M x N dimensional numpy matrix.
+    Z -- numpy array of any shape
 
     Return:
-    x -- You are allowed to modify x in-place
+    A -- Output of the softmax function
+    cache -- returns Z as well, useful during backpropagation
     """
 
-    orig_shape = x.shape
-
     # Softmax implementation for matrix. I need to apply the algorithm for each row (axis=1)
-    if len(x.shape) > 1:
-        max_matrix = np.max(x, axis=1) # Get the max values according to the row
-
-        # Reshape matrix from a vector of 2 elements to a matrix 2x1
-        # max_matrix is 2x1
+    if len(Z.shape) > 1:
+        max_matrix = np.max(Z, axis=1)
         max_matrix = max_matrix.reshape(max_matrix.shape[0], 1)
-
-        # Numerical stability for performance improvement:
-        # I subtract each element of the row with the
-        # corresponding row (a single element) of the max vector
-        x = x - max_matrix
-        e = np.exp(x)
-        x = np.divide(e, np.sum(e, axis=0))
-
+        stable_Z = Z - max_matrix
+        e = np.exp(stable_Z)
+        A = np.divide(e, np.sum(e, axis=1, keepdims=True))
     # Softmax implementation for vector.
     else:
-        vector_max_value = np.max(x)
-        x = (np.exp(x - vector_max_value)) / sum(np.exp(x - vector_max_value))
+        vector_max_value = np.max(Z)
+        A = (np.exp(Z - vector_max_value)) / sum(np.exp(Z - vector_max_value))
 
-    assert x.shape == orig_shape
-    return x
+    assert A.shape == Z.shape
+
+    cache = Z
+
+    return A, cache
 
 
-def softmax_grad(x):
-    # To understand the softmax gradient see the following link:
-    # https://eli.thegreenplace.net/2016/the-softmax-function-and-its-derivative/
-    raise NotImplementedError
+def softmax_grad(cache):
+    Z = cache
+    s = softmax(Z)[0].reshape(-1, 1)
+    dZ = np.diagflat(s) - np.dot(s, s.T)
+
+    assert dZ.shape[0] == (Z.shape[0] * Z.shape[1])
+
+    return dZ
 
 
 def test_softmax_and_its_gradient():
     print("Running basic tests...")
-    test1 = softmax(np.array([1,2]))
-    print(test1)
+
+    test1, cache = softmax(np.array([1,2]))
     ans1 = np.array([0.26894142,  0.73105858])
     assert np.allclose(test1, ans1, rtol=1e-05, atol=1e-06)
 
-    test2 = softmax(np.array([[1001,1002],[3,4]]))
-    print(test2)
+    test2, cache = softmax(np.array([[1001,1002],[3,4]]))
     ans2 = np.array([
         [0.26894142, 0.73105858],
         [0.26894142, 0.73105858]])
     assert np.allclose(test2, ans2, rtol=1e-05, atol=1e-06)
 
-    test3 = softmax(np.array([[-1001,-1002]]))
-    print(test3)
+    test3, cache = softmax(np.array([[-1001,-1002]]))
     ans3 = np.array([0.73105858, 0.26894142])
     assert np.allclose(test3, ans3, rtol=1e-05, atol=1e-06)
 
+    #test1_grad = softmax_grad(np.array([1,2]))
+    #print(test1_grad)
+
+    test2_grad = softmax_grad(np.array([[1001,1002,1003],[3,4,5]]))
+    anstest2_grad = np.array([
+    [ 0.08192507, -0.02203304, -0.05989202, -0.0081055,  -0.02203304, -0.05989202,],
+    [-0.02203304,  0.18483645, -0.1628034,  -0.02203304, -0.05989202, -0.1628034, ],
+    [-0.05989202, -0.1628034,   0.22269543, -0.05989202, -0.1628034,  -0.44254553,],
+    [-0.0081055,  -0.02203304, -0.05989202,  0.08192507, -0.02203304, -0.05989202,],
+    [-0.02203304, -0.05989202, -0.1628034,  -0.02203304,  0.18483645, -0.1628034, ],
+    [-0.05989202, -0.1628034,  -0.44254553, -0.05989202, -0.1628034,   0.22269543,],
+    ])
+
+    assert np.allclose(test2_grad, anstest2_grad, rtol=1e-05, atol=1e-06)
+
+    print("... test OK!")
 
 if __name__ == "__main__":
     test_softmax_and_its_gradient()
