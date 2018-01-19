@@ -33,7 +33,7 @@ def sigmoid_grad(dA, cache):
     dZ    -- Gradient of the cost with respect to Z
     """
     Z = cache
-    s = sigmoid(Z)
+    s, cache_sigmoid = sigmoid(Z)
     dZ = dA * s * (1-s)
 
     assert (dZ.shape == Z.shape)
