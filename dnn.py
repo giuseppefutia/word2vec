@@ -662,10 +662,20 @@ def test_update_parameters():
     print ("W2 = "+ str(parameters["W2"]))
     print ("b2 = "+ str(parameters["b2"]))
 
-    W1_expected = [[-0.59562069,-0.09991781,-2.14584584,1.82662008]]
-    b1_expected = [[-0.04659241],[-1.28888275],[ 0.53405496]]
+    W1_expected = [
+                    [-0.59562069,-0.09991781,-2.14584584,1.82662008],
+                    [-1.76569676,-0.80627147,0.51115557,-1.18258802],
+                    [-1.0535704,-0.86128581,0.68284052,2.20374577]]
+    assert np.allclose(parameters["W1"], W1_expected, rtol=1e-05, atol=1e-06)
+
+    b1_expected = [[-0.04659241],[-1.28888275],[0.53405496]]
+    assert np.allclose(parameters["b1"], b1_expected, rtol=1e-05, atol=1e-06)
+
     W2_expected = [[-0.55569196,0.0354055,1.32964895]]
+    assert np.allclose(parameters["W2"], W2_expected, rtol=1e-05, atol=1e-06)
+
     b2_expected = [[-0.84610769]]
+    assert np.allclose(parameters["b2"], b2_expected, rtol=1e-05, atol=1e-06)
 
     print("... end tests")
 
