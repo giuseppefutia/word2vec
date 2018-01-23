@@ -46,7 +46,7 @@ def test_initialize_hyper_parameters():
     assert len(hyper_parameters["activations"]) == 3
     assert hyper_parameters["activations"][1] == "relu"
 
-    print("... end tests")
+    print("... end test")
 
 
 def initialize_parameters(layer_dims):
@@ -243,7 +243,7 @@ def forward_propagation(X, parameters):
 
     caches = []
     A = X
-    L = len(parameters) // 3 # number of layers in the neural network.
+    L = len(parameters) // 2 # number of layers in the neural network.
 
     # Implement [LINEAR -> ACTIVATION]*(L-1). Add "cache" to the "caches" list.
     for l in range(1, L):
@@ -251,17 +251,17 @@ def forward_propagation(X, parameters):
         A, cache = linear_activation_forward(A_prev,
                                              parameters["W" +  str(l)],
                                              parameters["b" +  str(l)],
-                                             parameters["act" + str(l-1)])
+                                             "relu")
         caches.append(cache)
 
     # Implement LINEAR -> ACTIVATION. Add "cache" to the "caches" list.
     AL, cache = linear_activation_forward(A,
                                           parameters["W" + str(L)],
                                           parameters["b" + str(L)],
-                                          parameters["act" + str(L-1)])
+                                          "sigmoid")
     caches.append(cache)
 
-    assert(AL.shape == (1,X.shape[1]))
+    assert(AL.shape == (1, X.shape[1]))
 
     return AL, caches
 
@@ -280,13 +280,10 @@ def test_forward_propagation():
 
     parameters = {"W1": W1,
                   "b1": b1,
-                  "act0": "relu",
                   "W2": W2,
                   "b2": b2,
-                  "act1": "relu",
                   "W3": W3,
-                  "b3": b3,
-                  "act2": "sigmoid"}
+                  "b3": b3}
 
     AL, caches = forward_propagation(X, parameters)
     print("AL = " + str(AL))
@@ -301,6 +298,7 @@ def test_forward_propagation():
 
 
 def compute_cost(AL, Y):
+    # TODO: Use the general cross-entropy to compute the cost
     """
     Compute the cost.
 
@@ -313,13 +311,12 @@ def compute_cost(AL, Y):
     """
 
     # Compute loss from AL and Y.
-    cost = cross_entropy_cost(AL, Y)
+    #cost = cross_entropy_cost(AL, Y)
 
-    # The following lines compute the cross entropy cost in the case of binary classification
-    # m = Y.shape[1]
-    # cost = - (1/m) * np.sum(np.multiply(np.log(AL), Y) + np.multiply((1 - Y), np.log(1 - AL)))
-    # assert(cost.shape == ())
-    # cost = np.squeeze(cost)      # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
+    m = Y.shape[1]
+    cost = - (1/m) * np.sum(np.multiply(np.log(AL), Y) + np.multiply((1 - Y), np.log(1 - AL)))
+    cost = np.squeeze(cost)      # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
+    assert(cost.shape == ())
 
     return cost
 
@@ -330,8 +327,9 @@ def test_compute_cost():
     AL = np.array([[.8],[.9],[0.4]])
     cost = compute_cost(AL, Y)
     print("cost = " + str(cost))
-    #cost_expected = 0.414931599615 TODO: Check other implementation
-    cost_expected = 3.36248296666
+    cost_expected = 1.24479479885
+    #cost_expected = 0.414931599615
+    #cost_expected = 3.36248296666 TODO: Check other implementation
     assert np.allclose(cost, cost_expected, rtol=1e-05, atol=1e-06)
 
     print("... end test")
