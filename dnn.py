@@ -3,6 +3,8 @@
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
+import sys
+sys.path.insert(0, './activations')
 from sigmoid import *
 from relu import *
 from cross_entropy import *
