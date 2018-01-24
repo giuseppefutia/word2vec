@@ -146,7 +146,7 @@ def forward_propagation(X, parameters):
 
     Arguments:
     X -- data, numpy array of shape (input size, number of examples)
-    parameters -- output of initialize_parameters_deep()
+    parameters -- output of initialize_parameters() function in utils
 
     Returns:
     AL -- last post-activation value
@@ -240,9 +240,7 @@ def test_compute_cost():
     AL = np.array([[.8,.9,.4]])
     cost = compute_cost(AL, Y)
     print("cost = " + str(cost))
-    #cost_expected = 1.24479479885
     cost_expected = 0.414931599615
-    #cost_expected = 3.36248296666 TODO: Check other implementation
     assert np.allclose(cost, cost_expected, rtol=1e-05, atol=1e-06)
 
     print("... end test")
