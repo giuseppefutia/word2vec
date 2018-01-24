@@ -73,6 +73,7 @@ def initialize_parameters(layer_dims):
         parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
         assert(parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l-1]))
         assert(parameters['b' + str(l)].shape == (layer_dims[l], 1))
+
     return parameters
 
 
@@ -314,22 +315,24 @@ def compute_cost(AL, Y):
     # Compute loss from AL and Y.
     #cost = cross_entropy_cost(AL, Y)
 
-    m = Y.shape[1]
-    cost = - (1/m) * np.sum(np.multiply(np.log(AL), Y) + np.multiply((1 - Y), np.log(1 - AL)))
-    cost = np.squeeze(cost)      # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
+    m = AL.shape[1]
+    log_probs = np.multiply(-np.log(AL), Y) + np.multiply(-np.log(1 - AL), 1 - Y)
+    cost = (1. / m) * np.sum(log_probs)
+    cost = np.squeeze(cost) # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
     assert(cost.shape == ())
 
     return cost
 
+
 def test_compute_cost():
     print("\nTest compute_cost()... ")
 
-    Y = np.asarray([[1],[1],[1]])
-    AL = np.array([[.8],[.9],[0.4]])
+    Y = np.asarray([[1,1,1]])
+    AL = np.array([[.8,.9,.4]])
     cost = compute_cost(AL, Y)
     print("cost = " + str(cost))
-    cost_expected = 1.24479479885
-    #cost_expected = 0.414931599615
+    #cost_expected = 1.24479479885
+    cost_expected = 0.414931599615
     #cost_expected = 3.36248296666 TODO: Check other implementation
     assert np.allclose(cost, cost_expected, rtol=1e-05, atol=1e-06)
 

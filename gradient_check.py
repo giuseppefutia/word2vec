@@ -104,7 +104,7 @@ def gradient_check(parameters, gradients, X, Y, epsilon = 1e-7):
     # Compare gradapprox to backward propagation gradients by computing difference.
     numerator = np.linalg.norm(grad-gradapprox)
     denominator = np.linalg.norm(grad+gradapprox)
-    difference = numerator / denominator                       
+    difference = numerator / denominator
 
     if difference > 2e-7:
         print ("\033[93m" + "There is a mistake in the backward propagation! difference = " + str(difference) + "\033[0m")
@@ -116,7 +116,7 @@ def gradient_check(parameters, gradients, X, Y, epsilon = 1e-7):
 def test_gradient_check():
     np.random.seed(1)
     X = np.random.randn(4,3)
-    Y = np.array([[1], [1], [0]])
+    Y = np.array([1, 1, 0])
     W1 = np.random.randn(5,4)
     b1 = np.random.randn(5,1)
     W2 = np.random.randn(3,5)
@@ -131,7 +131,6 @@ def test_gradient_check():
                   "b3": b3}
 
     AL, caches = forward_propagation(X, parameters)
-    print("AL = " + str(AL))
     cost = compute_cost(AL, Y)
     gradients = backpropagation(AL, Y, caches)
     difference = gradient_check(parameters, gradients, X, Y)
