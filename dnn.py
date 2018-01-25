@@ -11,7 +11,7 @@ from relu import *
 from cross_entropy import *
 
 """
-TODO: check if softmax can be included in linear activation or it must be directly conbined with cross entropy
+TODO: check if softmax can be included in linear activation or it must be directly combined with cross entropy
 TODO: Use the general cross-entropy to compute the cost
 TODO: Update forward and back propagation using hyper parameters for activation functions
 """
@@ -29,7 +29,6 @@ def linear_forward(A, W, b):
     Z -- the input of the activation function, also called pre-activation parameter
     cache -- a python dictionary containing "A", "W" and "b" ; stored for computing the backward pass efficiently
     """
-    np.random.seed(1)
 
     Z = np.dot(W, A) + b
 
@@ -425,7 +424,7 @@ def backpropagation(AL, Y, caches):
     grads = {}
     L = len(caches) # the number of layers
     m = AL.shape[1]
-    Y = Y.reshape(AL.shape) # after this line, Y has the same shape as AL
+    Y = Y.reshape(AL.shape) # after this line, Y has the same shape of AL
 
     # Initializing the backpropagation
     dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
