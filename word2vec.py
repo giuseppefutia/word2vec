@@ -3,6 +3,7 @@
 import numpy as np
 import sys
 sys.path.insert(0, "./activations")
+from dnn import *
 from softmax import *
 from gradient_check_naive import *
 
@@ -74,20 +75,20 @@ def softmax_cost_and_gradient(predicted, target, output_vectors, dataset):
     b = 0
 
     # Forward propagation (TODO: maybe you have to substitute it)
-    probabilities = linear_activation_forward(A, W, b, "softmax")
+    probabilities, _ = linear_activation_forward(A, W, b, "softmax")
 
     # Cross entropy cost
-    cost = np.sum(-y * np.log(out))
+    cost = np.sum(-Y * np.log(probabilities))
 
     # Backward propagation (TODO: maybe you have to substitute it)
-    dout = out - Y # (1, n_words)
+    dout = probabilities - Y # (1, n_words)
 
     # TODO: Understand what are these two gradients
     grad_pred = np.dot(dout, output_vectors) # (1, dim_embed)
 
     grad = np.dot(dout.T, predicted) # (n_words, dim_embed)
 
-    return cost, gradPred, grad
+    return cost, grad_pred, grad
 
 
 def skipgram(current_word, C, context_words, tokens, input_vectors, output_vectors,
@@ -139,11 +140,10 @@ def word2vec_sgd_wrapper(word2vecModel, tokens, wordVectors, dataset, C,
     cost = 0.0
     grad = np.zeros(wordVectors.shape)
     N = wordVectors.shape[0]
+    inputVectors = wordVectors[:int(N/2),:]
+    outputVectors = wordVectors[int(N/2):,:]
 
-    inputVectors = wordVectors[:N/2,:]
-    outputVectors = wordVectors[N/2:,:]
-
-    for i in xrange(batchsize):
+    for i in range(batchsize):
         C1 = random.randint(1,C)
         centerword, context = dataset.getRandomContext(C1)
 
@@ -156,8 +156,8 @@ def word2vec_sgd_wrapper(word2vecModel, tokens, wordVectors, dataset, C,
             centerword, C1, context, tokens, inputVectors, outputVectors,
             dataset, word2vecCostAndGradient)
         cost += c / batchsize / denom
-        grad[:N/2, :] += gin / batchsize / denom
-        grad[N/2:, :] += gout / batchsize / denom
+        grad[:int(N/2), :] += gin / batchsize / denom
+        grad[int(N/2):, :] += gout / batchsize / denom
 
     return cost, grad
 
@@ -187,7 +187,7 @@ def test_word2vec():
     dummy_vectors = normalize_rows(np.random.randn(10,3))
     dummy_tokens = dict([("a",0), ("b",1), ("c",2),("d",3),("e",4)])
 
-    print("==== Gradient check for skip-gram ====")
+    print("\n==== Gradient check for skip-gram ====")
     gradcheck_naive(lambda vec: word2vec_sgd_wrapper(
                                     skipgram,
                                     dummy_tokens,
