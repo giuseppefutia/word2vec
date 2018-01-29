@@ -34,20 +34,20 @@ def normalize_rows(X):
 
 def test_normalize_rows():
     print("\n" + "\033[92m" + "Test normalize_rows() ..." + "\033[0m")
-    x = normalize_rows(np.array([[3.0,4.0],[1, 2]]))
+    x = normalize_rows(np.array([[3.0,4.0],[1,2]]))
     print(x)
     ans = np.array([[0.6,0.8],[0.4472136,0.89442719]])
     assert np.allclose(x, ans, rtol=1e-05, atol=1e-06)
     print("\033[92m" + "... end test" + "\033[0m")
 
 
-def softmax_cost_and_gradient(predicted, target, output_vectors, dataset):
+def softmax_cost_and_gradient(input_vector, target, output_vectors, dataset):
     """ Cost and gradients for one predicted word vector and one target
     word vector as a building block for word2vec models, assuming the
     softmax prediction function and cross entropy loss.
 
     Arguments:
-    predicted -- numpy (m,n), output of the forward_propagation()
+    input_vector -- np.array (1,n), representation of the center word in the input matrix
     target -- int, the index of the target word
     output_vectors -- "output" vectors (as rows) for all tokens (words in the vocabulary)
     dataset -- needed for negative sampling, unused here.
@@ -64,18 +64,28 @@ def softmax_cost_and_gradient(predicted, target, output_vectors, dataset):
     n = output_vectors.shape[1]
 
     # It represents the one-hot vector as output:
-    # so it should be long as number or words (vocabulary size)
+    # it should be long as number or words (vocabulary size)
     Y = np.zeros(m)
 
     # The position target of the one-hot vector is initialize to one
     Y[target] = 1
 
-    W = predicted
+    # (1,n) extracted by the input matrix (output of the hidden layer)
+    W = input_vector
+    # (m,n) -- (n,m) after transpose (matrix of weights at the output layer)
     A = output_vectors.T
     b = 0
 
-    # Forward propagation (TODO: maybe you have to substitute it)
-    probabilities, _ = linear_activation_forward(A, W, b, "softmax")
+    # Forward propagation. TODO: Remember to call initialize_parameters() and initialize_hyper_parameters() in the right position
+    parameters = {}
+    parameters["W1"] = W
+    parameters["b1"] = 0
+    hyper_parameters = {}
+    hyper_parameters["activations"] = {}
+    hyper_parameters["activations"][1] = "softmax"
+
+    probabilities, _ = forward_propagation(A, parameters, hyper_parameters)
+    print(probabilities)
 
     # Cross entropy cost
     cost = np.sum(-Y * np.log(probabilities))
@@ -86,7 +96,7 @@ def softmax_cost_and_gradient(predicted, target, output_vectors, dataset):
     # TODO: Understand what are these two gradients
     grad_pred = np.dot(dout, output_vectors) # (1, dim_embed)
 
-    grad = np.dot(dout.T, predicted) # (n_words, dim_embed)
+    grad = np.dot(dout.T, input_vector) # (n_words, dim_embed)
 
     return cost, grad_pred, grad
 
@@ -119,7 +129,7 @@ def skipgram(current_word, C, context_words, tokens, input_vectors, output_vecto
     gradOut = np.zeros(output_vectors.shape)
 
     idx = tokens[current_word] # tokens['a'] = 1
-    input_vector = input_vectors[idx:idx+1] # (1, dim_embed)
+    input_vector = input_vectors[idx:idx+1] # (1, number of features)
 
     for context in context_words:
         c, g_in, g_out = word2vec_cost_and_gradient(input_vector, tokens[context], output_vectors, dataset)
@@ -136,6 +146,9 @@ def skipgram(current_word, C, context_words, tokens, input_vectors, output_vecto
 
 def word2vec_sgd_wrapper(word2vecModel, tokens, wordVectors, dataset, C,
                          word2vecCostAndGradient=softmax_cost_and_gradient):
+
+    # It defines number of samples that going to be propagated through the network.
+    # It means that each 50 samples you update your parameters (efficient reasons)
     batchsize = 50
     cost = 0.0
     grad = np.zeros(wordVectors.shape)
@@ -147,17 +160,19 @@ def word2vec_sgd_wrapper(word2vecModel, tokens, wordVectors, dataset, C,
         C1 = random.randint(1,C)
         centerword, context = dataset.getRandomContext(C1)
 
+        ''' Maybe you can remove it
         if word2vecModel == skipgram:
             denom = 1
         else:
             denom = 1
+        '''
 
         c, gin, gout = word2vecModel(
             centerword, C1, context, tokens, inputVectors, outputVectors,
             dataset, word2vecCostAndGradient)
-        cost += c / batchsize / denom
-        grad[:int(N/2), :] += gin / batchsize / denom
-        grad[int(N/2):, :] += gout / batchsize / denom
+        cost += c / batchsize # / denom
+        grad[:int(N/2), :] += gin / batchsize #/ denom
+        grad[int(N/2):, :] += gout / batchsize #/ denom
 
     return cost, grad
 
@@ -175,27 +190,31 @@ def test_word2vec():
 
     # Example of output: ('b', ['c', 'a'])
     # Example of output: ('c', ['c', 'b', 'e', 'a', 'b', 'e'])
-    def getRandomContext(C): # It generates an example of context
+    def getRandomContext(C): # C is equal to the number of elements in the context (window)
         tokens = ["a", "b", "c", "d", "e"]
         return tokens[random.randint(0,4)], [tokens[random.randint(0,4)] for i in range(2*C)] # C is a window
 
     dataset.sampleTokenIdx = dummySampleTokenIdx
     dataset.getRandomContext = getRandomContext
 
-    random.seed(31415)
+    np.random.seed(31415)
     np.random.seed(9265)
     dummy_vectors = normalize_rows(np.random.randn(10,3))
     dummy_tokens = dict([("a",0), ("b",1), ("c",2),("d",3),("e",4)])
 
     print("\n==== Gradient check for skip-gram ====")
-    gradcheck_naive(lambda vec: word2vec_sgd_wrapper(
-                                    skipgram,
-                                    dummy_tokens,
-                                    vec,
-                                    dataset,
-                                    5,
-                                    softmax_cost_and_gradient),
-                                    dummy_vectors)
+
+    cost, grad = word2vec_sgd_wrapper(skipgram,
+                                      dummy_tokens,
+                                      dummy_vectors,
+                                      dataset,
+                                      5,
+                                      softmax_cost_and_gradient)
+
+    #print("Cost: ")
+    #print(cost)
+    #print("gradients: ")
+    #print(grad)
 
 
 if __name__ == "__main__":
