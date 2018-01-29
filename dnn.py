@@ -139,7 +139,7 @@ def test_linear_activation_forward():
     print("... end test")
 
 
-def forward_propagation(X, parameters):
+def forward_propagation(X, parameters, hyper_parameters):
     """
     Forward propagation algorithm
     It extends forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID computation written by Andrew Ng
@@ -147,6 +147,7 @@ def forward_propagation(X, parameters):
     Arguments:
     X -- data, numpy array of shape (input size, number of examples)
     parameters -- output of initialize_parameters() function in utils
+    hyper_parameters -- output of initialize_hyper_parameters() function in utils
 
     Returns:
     AL -- last post-activation value
@@ -157,25 +158,18 @@ def forward_propagation(X, parameters):
     A = X
     L = len(parameters) // 2 # number of layers in the neural network.
 
-    # Implement [LINEAR -> ACTIVATION]*(L-1). Add "cache" to the "caches" list.
-    for l in range(1, L):
+    # Implement [LINEAR -> ACTIVATION]
+    for l in range(1, L+1):
         A_prev = A
         A, cache = linear_activation_forward(A_prev,
                                              parameters["W" +  str(l)],
                                              parameters["b" +  str(l)],
-                                             "relu")
+                                             hyper_parameters["activations"][l])
         caches.append(cache)
 
-    # Implement LINEAR -> ACTIVATION. Add "cache" to the "caches" list.
-    AL, cache = linear_activation_forward(A,
-                                          parameters["W" + str(L)],
-                                          parameters["b" + str(L)],
-                                          "sigmoid")
-    caches.append(cache)
+    assert(A.shape == (1, X.shape[1]))
 
-    assert(AL.shape == (1, X.shape[1]))
-
-    return AL, caches
+    return A, caches
 
 
 def test_forward_propagation():
@@ -197,7 +191,13 @@ def test_forward_propagation():
                   "W3": W3,
                   "b3": b3}
 
-    AL, caches = forward_propagation(X, parameters)
+    hyper_parameters = {}
+    hyper_parameters["activations"] = {}
+    hyper_parameters["activations"][1] = "relu"
+    hyper_parameters["activations"][2] = "relu"
+    hyper_parameters["activations"][3] = "sigmoid"
+
+    AL, caches = forward_propagation(X, parameters, hyper_parameters)
     print("AL = " + str(AL))
     print("Length of caches list = " + str(len(caches)))
     AL_expected = np.array([[0.03921668, 0.70498921, 0.19734387, 0.04728177]])
