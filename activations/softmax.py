@@ -5,6 +5,7 @@ import numpy as np
 """
 TODO: Better check to identify a matrix or a vector
 TODO: Implement softmax gradient for vector
+TODO: Check if its better have a vector (n,m) or (m,n)
 """
 
 def softmax(Z):
