@@ -14,7 +14,7 @@ from cross_entropy import *
 TODO: check if softmax can be included in linear activation or it must be directly combined with cross entropy
 TODO: Use the general cross-entropy to compute the cost
 TODO: Update forward and back propagation using hyper parameters for activation functions
-TODO: Reduce forward_propagation() and backpropagation(), considering all layers in the same way
+TODO: Reduce backpropagation(), considering all layers in the same way
 """
 
 def linear_forward(A, W, b):
