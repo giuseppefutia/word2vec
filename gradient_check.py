@@ -7,6 +7,7 @@ from dnn import *
 from sigmoid import *
 from relu import *
 
+
 def dictionary_to_vector(parameters):
     """
     Roll all our parameters dictionary into a single vector
@@ -67,8 +68,8 @@ def gradient_check(parameters, gradients, X, Y, epsilon = 1e-7):
     Arguments:
     parameters -- python dictionary containing your parameters "W1", "b1", "W2", "b2", "W3", "b3":
     grad -- output of backward_propagation_n, contains gradients of the cost with respect to the parameters.
-    x -- input datapoint, of shape (input size, 1)
-    y -- true "label"
+    X -- input datapoint, of shape (input size, 1)
+    Y -- true "label"
     epsilon -- tiny shift to the input to compute approximated gradient with formula(1)
 
     Returns:
