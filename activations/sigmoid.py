@@ -12,7 +12,7 @@ def sigmoid(Z):
     Z -- numpy array of any shape
 
     Returns:
-    A -- output of sigmoid(z), same shape as Z
+    A -- output of sigmoid(Z), same shape as Z
     cache -- returns Z as well, useful during backpropagation
     """
     A = 1 / (1 + np.exp(-Z))
