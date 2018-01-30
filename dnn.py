@@ -59,7 +59,10 @@ def test_linear_forward():
     Z, linear_cache = linear_forward(A, W, b)
     Z_expected = np.array([[3.26295337, -1.23429987]])
 
+    print("Z:")
     print(Z)
+    print("Cache linear forward:")
+    print(linear_cache)
 
     assert np.allclose(Z, Z_expected, rtol=1e-05, atol=1e-06)
 
@@ -167,7 +170,7 @@ def forward_propagation(X, parameters, hyper_parameters):
                                              hyper_parameters["activations"][l])
         caches.append(cache)
 
-    assert(A.shape == (1, X.shape[1]))
+    # assert(A.shape == (1, X.shape[1])) TODO: Check if this control is correct in any case
 
     return A, caches
 
@@ -199,7 +202,10 @@ def test_forward_propagation():
 
     AL, caches = forward_propagation(X, parameters, hyper_parameters)
     print("AL = " + str(AL))
+    print("Caches = " + str(caches))
+    print("Caches[0] of first layer = " + str(caches[0]))
     print("Length of caches list = " + str(len(caches)))
+    print("Length of caches[0][0] = " + str(len(caches[0][0])))
     AL_expected = np.array([[0.03921668, 0.70498921, 0.19734387, 0.04728177]])
     caches_length_expected = 3
 
@@ -636,7 +642,7 @@ def predict(X, y, parameters):
     p = np.zeros((1, m),dtype=int)
 
     # Forward propagation
-    probas, caches = forward_propagation(X, parameters)
+    probas, caches = forward_propagation(X, parameters, hyper_parameters)
 
     # convert probas to 0/1 predictions
     for i in range(0, probas.shape[1]):
