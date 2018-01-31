@@ -14,7 +14,7 @@ from cross_entropy import *
 TODO: check if softmax can be included in linear activation or it must be directly combined with cross entropy
 TODO: Use the general cross-entropy to compute the cost
 TODO: Update forward and back propagation using hyper parameters for activation functions
-TODO: Reduce forward_propagation() and backpropagation(), considering all layers in the same way
+TODO: Reduce backpropagation(), considering all layers in the same way
 """
 
 def linear_forward(A, W, b):
@@ -59,7 +59,10 @@ def test_linear_forward():
     Z, linear_cache = linear_forward(A, W, b)
     Z_expected = np.array([[3.26295337, -1.23429987]])
 
+    print("Z:")
     print(Z)
+    print("Cache linear forward:")
+    print(linear_cache)
 
     assert np.allclose(Z, Z_expected, rtol=1e-05, atol=1e-06)
 
@@ -139,7 +142,7 @@ def test_linear_activation_forward():
     print("... end test")
 
 
-def forward_propagation(X, parameters):
+def forward_propagation(X, parameters, hyper_parameters):
     """
     Forward propagation algorithm
     It extends forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID computation written by Andrew Ng
@@ -147,6 +150,7 @@ def forward_propagation(X, parameters):
     Arguments:
     X -- data, numpy array of shape (input size, number of examples)
     parameters -- output of initialize_parameters() function in utils
+    hyper_parameters -- output of initialize_hyper_parameters() function in utils
 
     Returns:
     AL -- last post-activation value
@@ -157,25 +161,18 @@ def forward_propagation(X, parameters):
     A = X
     L = len(parameters) // 2 # number of layers in the neural network.
 
-    # Implement [LINEAR -> ACTIVATION]*(L-1). Add "cache" to the "caches" list.
-    for l in range(1, L):
+    # Implement [LINEAR -> ACTIVATION]
+    for l in range(1, L+1):
         A_prev = A
         A, cache = linear_activation_forward(A_prev,
                                              parameters["W" +  str(l)],
                                              parameters["b" +  str(l)],
-                                             "relu")
+                                             hyper_parameters["activations"][l])
         caches.append(cache)
 
-    # Implement LINEAR -> ACTIVATION. Add "cache" to the "caches" list.
-    AL, cache = linear_activation_forward(A,
-                                          parameters["W" + str(L)],
-                                          parameters["b" + str(L)],
-                                          "sigmoid")
-    caches.append(cache)
+    # assert(A.shape == (1, X.shape[1])) TODO: Check if this control is correct in any case
 
-    assert(AL.shape == (1, X.shape[1]))
-
-    return AL, caches
+    return A, caches
 
 
 def test_forward_propagation():
@@ -197,9 +194,18 @@ def test_forward_propagation():
                   "W3": W3,
                   "b3": b3}
 
-    AL, caches = forward_propagation(X, parameters)
+    hyper_parameters = {}
+    hyper_parameters["activations"] = {}
+    hyper_parameters["activations"][1] = "relu"
+    hyper_parameters["activations"][2] = "relu"
+    hyper_parameters["activations"][3] = "sigmoid"
+
+    AL, caches = forward_propagation(X, parameters, hyper_parameters)
     print("AL = " + str(AL))
+    print("Caches = " + str(caches))
+    print("Caches[0] of first layer = " + str(caches[0]))
     print("Length of caches list = " + str(len(caches)))
+    print("Length of caches[0][0] = " + str(len(caches[0][0])))
     AL_expected = np.array([[0.03921668, 0.70498921, 0.19734387, 0.04728177]])
     caches_length_expected = 3
 
@@ -636,7 +642,7 @@ def predict(X, y, parameters):
     p = np.zeros((1, m),dtype=int)
 
     # Forward propagation
-    probas, caches = forward_propagation(X, parameters)
+    probas, caches = forward_propagation(X, parameters, hyper_parameters)
 
     # convert probas to 0/1 predictions
     for i in range(0, probas.shape[1]):

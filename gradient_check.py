@@ -7,6 +7,7 @@ from dnn import *
 from sigmoid import *
 from relu import *
 
+
 def dictionary_to_vector(parameters):
     """
     Roll all our parameters dictionary into a single vector
@@ -27,6 +28,7 @@ def dictionary_to_vector(parameters):
 
     return theta, keys
 
+
 def vector_to_dictionary(theta):
     """
     Unroll all our parameters dictionary from a single vector
@@ -40,6 +42,7 @@ def vector_to_dictionary(theta):
     parameters["b3"] = theta[46:47].reshape((1,1))
 
     return parameters
+
 
 def gradients_to_vector(gradients):
     """
@@ -60,15 +63,16 @@ def gradients_to_vector(gradients):
     return theta
 
 
-def gradient_check(parameters, gradients, X, Y, epsilon = 1e-7):
+def gradient_check(parameters, hyper_parameters, gradients, X, Y, epsilon = 1e-7):
     """
     Checks if backward_propagation_n computes correctly the gradient of the cost output by forward_propagation
 
     Arguments:
     parameters -- python dictionary containing your parameters "W1", "b1", "W2", "b2", "W3", "b3":
+    hyper_parameters -- python dictionary containing hyper parameters like activation functions (see utils.py)
     grad -- output of backward_propagation_n, contains gradients of the cost with respect to the parameters.
-    x -- input datapoint, of shape (input size, 1)
-    y -- true "label"
+    X -- input datapoint, of shape (input size, 1)
+    Y -- true "label"
     epsilon -- tiny shift to the input to compute approximated gradient with formula(1)
 
     Returns:
@@ -89,13 +93,13 @@ def gradient_check(parameters, gradients, X, Y, epsilon = 1e-7):
         # Compute J_plus[i]. Inputs: "parameters_values, epsilon". Output = "J_plus[i]"
         thetaplus = np.copy(parameters_values)
         thetaplus[i][0] =  thetaplus[i][0] + epsilon
-        AL_plus, _ = forward_propagation(X, vector_to_dictionary(thetaplus))
+        AL_plus, _ = forward_propagation(X, vector_to_dictionary(thetaplus), hyper_parameters)
         J_plus[i] = compute_cost(AL_plus, Y)
 
         # Compute J_minus[i]. Inputs: "parameters_values, epsilon". Output = "J_minus[i]"
         thetaminus = np.copy(parameters_values)
         thetaminus[i][0] = thetaminus[i][0] - epsilon
-        AL_minus, _ = forward_propagation(X, vector_to_dictionary(thetaminus))
+        AL_minus, _ = forward_propagation(X, vector_to_dictionary(thetaminus), hyper_parameters)
         J_minus[i] = compute_cost(AL_minus, Y)
 
         # Compute gradapprox[i]
@@ -129,11 +133,16 @@ def test_gradient_check():
                   "b2": b2,
                   "W3": W3,
                   "b3": b3}
+    hyper_parameters = {}
+    hyper_parameters["activations"] = {}
+    hyper_parameters["activations"][1] = "relu"
+    hyper_parameters["activations"][2] = "relu"
+    hyper_parameters["activations"][3] = "sigmoid"
 
-    AL, caches = forward_propagation(X, parameters)
+    AL, caches = forward_propagation(X, parameters, hyper_parameters)
     cost = compute_cost(AL, Y)
     gradients = backpropagation(AL, Y, caches)
-    difference = gradient_check(parameters, gradients, X, Y)
+    difference = gradient_check(parameters, hyper_parameters, gradients, X, Y)
 
 
 if __name__ == "__main__":
