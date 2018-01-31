@@ -24,11 +24,10 @@ def softmax(Z):
         max_matrix = np.max(Z, axis=0)
         stable_Z = Z - max_matrix
         e = np.exp(stable_Z)
-        A = np.divide(e, np.sum(e, axis=0, keepdims=True))
+        A = e / np.sum(e, axis=0, keepdims=True)
     # Softmax implementation for vector.
     else:
         vector_max_value = np.max(Z)
-        print(vector_max_value)
         A = (np.exp(Z - vector_max_value)) / sum(np.exp(Z - vector_max_value))
 
     assert A.shape == Z.shape
