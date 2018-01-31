@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 import numpy as np
-import sys
-sys.path.insert(0, "./activations")
+import random
 from dnn import *
 from softmax import *
 from gradient_check_naive import *
-import random
+import sys
+sys.path.insert(0, "./activations")
 
 """
 TODO: Update backpropagation with the implementation in dnn.py
