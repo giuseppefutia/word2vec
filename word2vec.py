@@ -9,10 +9,7 @@ from gradient_check_naive import *
 import random
 
 """
-TODO: check if you have to normalize columns instead of rows
-TODO: If linear_activation_forward() take as input the hyper_parameters python array,
-      you should update softmax_gradient()
-TODO: update softmax_gradient() using functions in dnn.py
+TODO: Update backpropagation with the implementation in dnn.py
 """
 
 def normalize_rows(X):
