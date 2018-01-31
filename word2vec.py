@@ -5,6 +5,8 @@ import sys
 sys.path.insert(0, "./activations")
 from dnn import *
 from softmax import *
+from gradient_check_naive import *
+import random
 
 """
 TODO: check if you have to normalize columns instead of rows
@@ -97,12 +99,10 @@ def softmax_gradients(input_vector, output_vectors, probabilities, target_word):
     grad -- the gradient with respect to all the other word vectors
     """
     # Backward propagation
-
     dout = probabilities - target_word # (n_words,1)
-    grad_pred = np.dot(dout.T, output_vectors) # (1, dim_embed)
-    grad = np.dot(dout, input_vector) # (n_words, dim_embed)
-    print("grad")
-    print(grad)
+    dout = dout.reshape(probabilities.shape[0]) # (n_words,)
+    grad_pred = np.dot(dout, output_vectors) # (1, dim_embed)
+    grad = np.dot(dout.reshape(probabilities.shape[0],1), input_vector) # (n_words, dim_embed)
 
     return grad_pred, grad
 
@@ -156,12 +156,8 @@ def skipgram(current_word, C, context_words, tokens, parameters, hyper_parameter
                                         probabilities,
                                         Y)
 
-        gradIn[:,idx] += g_in.reshape(g_in.shape[1])
+        gradIn[:,idx] += g_in
         gradOut += g_out
-        print("gradIn")
-        print(gradIn)
-        print("gradOut")
-        print(gradOut)
 
     return cost, gradIn, gradOut
 
@@ -187,7 +183,7 @@ def word2vec_sgd_wrapper(word2vec_model, tokens, word_vectors, dataset, C,
     for i in range(batchsize):
 
         # Randomize center word and context word generation
-        C1 = np.random.randint(1,C)
+        C1 = random.randint(1,C)
         centerword, context = dataset.getRandomContext(C1) # Example of output: ('c', ['a', 'b', 'e'])
 
         # Maybe you can remove it
@@ -214,30 +210,38 @@ def test_word2vec():
     dataset = type('dummy', (), {})() # It creates class dynamically and creates an instance of it
 
     def dummySampleTokenIdx(): # It generates randomly an int between 0 and 4
-        return np.random.randint(0, 4)
+        return random.randint(0, 4)
 
     # Example of output: ('b', ['c', 'a'])
     # Example of output: ('c', ['c', 'b', 'e', 'a', 'b', 'e'])
     def getRandomContext(C): # C is equal to the number of elements in the context (window)
         tokens = ["a", "b", "c", "d", "e"]
-        return tokens[np.random.randint(0,4)], [tokens[np.random.randint(0,4)] for i in range(2*C)] # C is a window
+        return tokens[random.randint(0,4)], [tokens[random.randint(0,4)] for i in range(2*C)] # C is a window
 
     dataset.sampleTokenIdx = dummySampleTokenIdx
     dataset.getRandomContext = getRandomContext
 
-    np.random.seed(31415)
+    random.seed(31415)
     np.random.seed(9265)
 
     dummy_vectors = normalize_rows(np.random.randn(10,3))
     dummy_tokens = dict([("a",0), ("b",1), ("c",2),("d",3),("e",4)])
 
     print("\n==== Gradient check for skip-gram ====")
-    cost, grad = word2vec_sgd_wrapper(skipgram,
+
+    '''cost, gradients = word2vec_sgd_wrapper(skipgram,
                                       dummy_tokens,
                                       dummy_vectors,
                                       dataset,
                                       5,
-                                      softmax_gradients)
+                                      softmax_gradients)'''
+
+    gradient_check_naive(lambda vec: word2vec_sgd_wrapper(skipgram, dummy_tokens, vec, dataset, 5, softmax_gradients), dummy_vectors)
+
+    print("\n=== Results ===")
+    params, h_params = initialize_word2vec_parameters(dummy_vectors[:5,:], dummy_vectors[5:,:])
+    print(skipgram("c", 3, ["a", "b", "e", "d", "b", "c"], dummy_tokens, params, h_params, softmax_gradients))
+
 
 if __name__ == "__main__":
     test_normalize_rows()
