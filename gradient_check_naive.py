@@ -11,7 +11,6 @@ def gradient_check_naive(f, x):
     f -- should be a function that takes a single argument and outputs its gradients
     x -- is the point (numpy array) to check the gradient at
     """
-
     rndstate = random.getstate()
     random.setstate(rndstate)
     fx, grad = f(x) # Evaluate function value at original point
