@@ -8,7 +8,7 @@ The Word2Vec implementation in this repository is based on the general purpose n
 python dnn.py
 ```
 
-## Word2Vec implementation details
+## Word2Vec Implementation Details
 Only the skip-gram model is currently available in this repository. In order to test the backward propagation implemented within such model with the gradient check, you can launch the following command:
 
 ```
