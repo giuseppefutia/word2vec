@@ -14,7 +14,7 @@ python dnn.py
 ```
 
 ## Word2Vec Implementation Details
-Only the skip-gram model is currently available in this repository. In order to test the backward propagation implemented within such model with the gradient check, you can launch the following command:
+Only the skip-gram model is currently available in this repository. In order to test with gradient check the backward propagation implemented within such model, you can launch the following command:
 
 ```
 python word2vec.py
