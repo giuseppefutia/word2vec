@@ -3,8 +3,8 @@ Implementation of the Word2Vec models.
 
 ## System Requirements
 
-* conda 4.4.8
 * python 3.6
+* conda 4.4.8
 
 ## Shallow Neural Network
 The Word2Vec implementation in this repository is based on the general purpose neural network available in `dnn.py` file. In order to test the network (forward and back propagation) you can launch the following command:
