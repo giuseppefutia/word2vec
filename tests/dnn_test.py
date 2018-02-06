@@ -2,7 +2,6 @@
 
 import sys
 sys.path.insert(0, "./")
-sys.path.insert(1, "./activations")
 from dnn import *
 
 def test_linear_forward():
