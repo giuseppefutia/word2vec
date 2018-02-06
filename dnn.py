@@ -266,7 +266,7 @@ def update_parameters(parameters, grads, learning_rate):
     return parameters
 
 
-def predict(X, y, parameters):
+def predict(X, y, parameters, hyper_parameters):
     """
     This function is used to predict the results of a  L-layer neural network.
 
