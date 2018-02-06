@@ -7,8 +7,12 @@ import matplotlib.pyplot as plt
 import scipy
 from PIL import Image
 from scipy import ndimage
+import sys
+sys.path.insert(0, "./")
 from dnn import *
+from init_parameters import *
 
+# This is a simple model to demonstrate that dnn.py is a general purpose neural network
 
 def two_layer_model(hyper_parameters, X, Y, layers_dims, num_iterations = 3000, print_cost=False):
     """
@@ -106,22 +110,14 @@ def load_data():
 
     return train_set_x_orig, train_set_y_orig, test_set_x_orig, test_set_y_orig, classes
 
+
 def test_two_layer_model():
-    #%matplotlib inline
-    plt.rcParams['figure.figsize'] = (5.0, 4.0) # set default size of plots
-    plt.rcParams['image.interpolation'] = 'nearest'
-    plt.rcParams['image.cmap'] = 'gray'
-
-    #%load_ext autoreload
-    #%autoreload 2
-
     np.random.seed(1)
 
     train_x_orig, train_y, test_x_orig, test_y, classes = load_data()
 
     # Example of a picture
     index = 10
-    plt.imshow(train_x_orig[index])
     print("y = " + str(train_y[0,index]) + ". It's a " + classes[train_y[0,index]].decode("utf-8") +  " picture.")
 
     # Explore your dataset
@@ -167,9 +163,9 @@ def test_two_layer_model():
 
     parameters = two_layer_model(hyper_parameters, train_x, train_y, layers_dims = (n_x, n_h, n_y), num_iterations = 2500, print_cost=True)
 
-    predictions_train = predict(train_x, train_y, parameters)
+    predictions_train = predict(train_x, train_y, parameters, hyper_parameters)
 
-    predictions_test = predict(test_x, test_y, parameters)
+    predictions_test = predict(test_x, test_y, parameters, hyper_parameters)
 
 if __name__ == "__main__":
     test_two_layer_model()
