@@ -9,6 +9,7 @@ from softmax import *
 
 """
 TODO: Update backpropagation with the implementation in dnn.py
+TODO: Extend the use of the forward propagation implementation in dnn.py also for negative sampling
 """
 
 def normalize_rows(X):
@@ -107,10 +108,17 @@ def negative_sampling(input_vector, output_vectors, probabilities, target_word, 
     """ Negative sampling cost and gradients function for Word2Vec models
 
     Arguments:
+    input_vector -- matrix (1,n), representation of the center word in the input matrix
+    output_vectors -- "output" vectors (as columns) for all tokens (words in the vocabulary)
+    probabilities -- output of the forward propagation propagation
+    target_word -- one-hot vector representation of the target word
+    dataset -- object with sample data useful for the negative sampling
 
 
     Returns:
-
+    cost -- cross-entropy cost
+    grad_pred -- the gradient with respect to the predicted word vector
+    grad -- the gradient with respect to all the other word vectors
 
     """
 
@@ -145,14 +153,6 @@ def negative_sampling(input_vector, output_vectors, probabilities, target_word, 
 
     for k in range(K+1):
         grad[indices[k]] += grad_min[k,:]
-
-    '''
-    print("In negative sampling model")
-    print("grad_pred")
-    print(grad_pred)
-    print("grad_min")
-    print(grad_min)
-    '''
 
     return cost, grad_pred, grad
 
