@@ -44,8 +44,8 @@ def sigmoid_grad(dA, cache):
 def test_sigmoid_and_its_gradient():
     print("Running basic tests...")
     x = np.array([[1, 2], [-1, -2]])
-    f = sigmoid(x)
-    g = sigmoid_grad(f)
+    f, _ = sigmoid(x)
+    g = sigmoid_grad(1,x)
 
     print(f)
     f_ans = np.array([
