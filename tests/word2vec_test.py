@@ -2,7 +2,6 @@
 
 import sys
 sys.path.insert(0, "./")
-sys.path.insert(1, "./activations")
 from word2vec import *
 from gradient_check_naive import *
 
