@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.insert(0, "./activations")
 sys.path.insert(1, "./utils")
-from sigmoid import *
 from relu import *
-from cross_entropy import *
+from sigmoid import *
+from softmax import *
 
 """
 TODO: check if softmax can be included in linear activation or it must be directly combined with cross entropy
