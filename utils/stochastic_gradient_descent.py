@@ -4,7 +4,7 @@ import glob
 import random
 import numpy as np
 import os.path as op
-import cPickle as pickle
+import _pickle as pickle
 
 # Save parameters every a few SGD iterations as fail-safe
 SAVE_PARAMS_EVERY = 1000
