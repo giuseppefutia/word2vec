@@ -213,5 +213,42 @@ def skipgram(current_word, C, context_words, tokens, parameters, hyper_parameter
     return cost, grad_in, grad_out
 
 
+def word2vec_sgd_wrapper(word2vec_model, tokens, word_vectors, dataset, C,
+                         word2vec_gradient=softmax_cost_grads):
+    # It defines number of samples that going to be propagated through the network.
+    # It means that each 50 samples you update your parameters (efficient reasons)
+    batchsize = 50
+    cost = 0.0
+    grad = np.zeros(word_vectors.shape) # (m,n) Zero matrix for the gradients
+    m = word_vectors.shape[0] # Number of different words in the vocabulary
+
+    # Matrices of parameters for the forward propagation
+    input_vectors = word_vectors[:int(m/2),:]
+    output_vectors = word_vectors[int(m/2):,]
+
+    params, h_params = initialize_word2vec_parameters(input_vectors, output_vectors)
+
+    for i in range(batchsize):
+
+        # Randomize center word and context word generation
+        C1 = random.randint(1,C)
+        centerword, context = dataset.getRandomContext(C1) # Example of output: ('c', ['a', 'b', 'e'])
+
+        # Maybe you can remove it
+        if word2vec_model == skipgram:
+            denom = 1
+        else:
+            denom = 1
+
+        c, gin, gout = word2vec_model(
+            centerword, C1, context, tokens, params, h_params,
+            dataset, word2vec_gradient)
+        cost += c / batchsize / denom
+        grad[:int(m/2),:] += gin.T / batchsize / denom
+        grad[int(m/2):,] += gout / batchsize / denom
+
+    return cost, grad
+
+
 if __name__ == "__main__":
     print("\n"  + "Launch" + "\033[92m" + " python tests/word2vec_test.py " + "\033[0m" + "script to test Word2Vec cost and gradient\n")
