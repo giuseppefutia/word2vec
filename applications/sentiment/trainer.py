@@ -1,10 +1,13 @@
 import random
+import time
 from sentiment_utils import *
 import sys
 sys.path.insert(0, "./")
 sys.path.insert(1, "./utils")
 from word2vec import *
 from stochastic_gradient_descent import *
+
+tic = time.clock()
 
 random.seed(314)
 dataset = StanfordSentiment()
@@ -25,10 +28,12 @@ np.random.seed(9265)
 word_vectors = np.concatenate(((np.random.rand(n_words, dim_vectors) - .5) / \
 	dim_vectors, np.zeros((n_words, dim_vectors))), axis=0)
 
-print("")
-
 word_vectors0 = sgd(
     lambda vec: word2vec_sgd_wrapper(skipgram, tokens, vec, dataset, C, negative_sampling),
     word_vectors, 0.3, 40000, None, True, PRINT_EVERY=10)
 
 print("Sanity check: cost at convergence should be around or below 10")
+
+toc = time.clock()
+
+print("Training time: " + str(toc-tic))
