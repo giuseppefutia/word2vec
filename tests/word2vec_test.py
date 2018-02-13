@@ -4,6 +4,10 @@ import sys
 sys.path.insert(0, "./")
 from word2vec import *
 from gradient_check_naive import *
+sys.path.insert(1, "./applications/sentiment")
+from stanford import *
+from sent_utils import *
+from stochastic_gradient_descent import *
 
 
 def test_normalize_rows():
@@ -114,7 +118,40 @@ def test_word2vec():
     print("\033[92m" + "... end test" + "\033[0m")
 
 
+def test_word2vec_with_reg():
+    print("\n" + "\033[92m" + "Test Word2Vec models with softmax and regularization ..." + "\033[0m")
+
+    random.seed(314159)
+    np.random.seed(265)
+
+    dataset = StanfordSentiment()
+    tokens = dataset.tokens()
+    nWords = len(tokens)
+
+    _, wordVectors0, _ = load_saved_params()
+    wordVectors = (wordVectors0[:nWords,:] + wordVectors0[nWords:,:])
+    dimVectors = wordVectors.shape[1]
+
+    dummy_weights = 0.1 * np.random.randn(dimVectors, 5)
+    dummy_features = np.zeros((10, dimVectors))
+    dummy_labels = np.zeros((10,), dtype=np.int32)
+
+    for i in range(10):
+        words, dummy_labels[i] = dataset.getRandomTrainSentence()
+        dummy_features[i, :] = getSentenceFeature(tokens, wordVectors, words)
+
+    print("==== Gradient check for softmax regression ====")
+    gradient_check_naive(lambda weights: softmax_cost_grads_reg(dummy_features,
+        dummy_labels, weights, 1.0, nopredictions = True), dummy_weights)
+
+    print("\n=== Results ===")
+    print(softmax_cost_grads_reg(dummy_features, dummy_labels, dummy_weights, 1.0))
+
+    print("\033[92m" + "... end test" + "\033[0m")
+
+
 if __name__ == "__main__":
     test_normalize_rows()
     test_negative_sampling()
     test_word2vec()
+    test_word2vec_with_reg()
