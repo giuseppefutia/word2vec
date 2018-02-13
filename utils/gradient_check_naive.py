@@ -38,9 +38,6 @@ def gradient_check_naive(f, x):
             print("Your gradient: %f \t Numerical gradient: %f" % (grad[ix], numgrad))
             return
 
-        print("Check gradient at index %s" % str(ix))
-        print("Gradient by your back prop: %f \t Numerical gradient: %f" % (grad[ix], numgrad))
-
         it.iternext() # Step to next dimension
 
     print("Gradient check passed!")
