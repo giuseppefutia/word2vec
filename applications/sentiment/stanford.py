@@ -146,8 +146,12 @@ class StanfordSentiment:
         sentences = self.sentences()
         for i in range(self.numSentences()):
             sentence = sentences[i]
-            full_sent = " ".join(sentence).replace('-lrb-', '(').replace('-rrb-', ')')
-            sent_labels[i] = labels[dictionary[full_sent]]
+            full_sent = b" ".join(sentence).decode("latin-1").replace('-lrb-', '(').replace('-rrb-', ')').replace('ã©','é')
+
+            try:
+                sent_labels[i] = labels[dictionary[full_sent]]
+            except KeyError:
+                 print("I got a KeyError - reason '%s'" % str(full_sent))
 
         self._sent_labels = sent_labels
         return self._sent_labels

@@ -1,10 +1,10 @@
 import random
 import time
-from sentiment_utils import *
+from stanford import *
 import sys
 sys.path.insert(0, "./")
-sys.path.insert(1, "./utils")
 from word2vec import *
+sys.path.insert(1, "./utils")
 from stochastic_gradient_descent import *
 
 tic = time.clock()
@@ -43,6 +43,7 @@ _, wordVectors0, _ = load_saved_params()
 
 wordVectors = (wordVectors0[:n_words,:] + wordVectors0[n_words:,:])
 
+# Binary strings defined in Python 3.
 visualizeWords = [b"the", b"a", b"an", b",", b".", b"?", b"!", b"``", b"''", b"--",
 	b"good", b"great", b"cool", b"brilliant", b"wonderful", b"well", b"amazing",
 	b"worth", b"sweet", b"enjoyable", b"boring", b"bad", b"waste", b"dumb",
