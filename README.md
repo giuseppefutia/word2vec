@@ -28,8 +28,8 @@ datasets/test_catvnoncat.h5
 
 After 2500 iterations at the training stage, you should obtain the following accuracy results:
 
-* **Accuracy: 1.0 (on the training dataset)**
-* **Accuracy: 0.72 (on the test dataset)**
+* Accuracy: 1.0 (on the training dataset)
+* Accuracy: 0.72 (on the test dataset)
 
 
 ## Word2Vec Implementation 
