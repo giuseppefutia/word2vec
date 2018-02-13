@@ -2,10 +2,10 @@
 
 import numpy as np
 import random
-from dnn import *
 import sys
 sys.path.insert(0, "./activations")
 from softmax import *
+from dnn import *
 
 """
 TODO: Update backpropagation with the implementation in dnn.py
@@ -72,6 +72,58 @@ def softmax_cost_grads(input_vector, output_vectors, target_index, dataset):
     _, grad, _ = linear_backward(delta_out.reshape(delta_out.shape[0], 1), cache[0]) # (n_words, dim_embed)
 
     return cost, grad_pred, grad
+
+
+def softmax_cost_grads_reg(features, labels, weights, regularization = 0.0, nopredictions = False):
+    """
+    Softmax cost and gradient with regularization
+
+    Arguments:
+    features -- feature vectors, each row is a feature vector
+    labels -- labels corresponding to the feature vectors
+    weights -- weights of the regressor
+    regularization -- L2 regularization constant
+
+    Output:
+    cost -- cost of the regressor
+    grad -- gradient of the regressor cost with respect to its weights
+    pred -- label predictions of the regressor
+
+    """
+    probabilities, _ = softmax(features.dot(weights).T)
+
+    if len(features.shape) > 1:
+        N = features.shape[0]
+    else:
+        N = 1
+
+    # A vectorized implementation of 1/N * sum(cross_entropy(x_i, y_i)) + 1/2*|w|^2
+
+    cost = np.sum(-np.log(probabilities[labels, range(N)])) / N
+    cost += 0.5 * regularization * np.sum(weights ** 2)
+
+    grad = np.zeros_like(weights)
+    pred = 0;
+
+    numlabels = np.shape(weights)[1]
+
+    delta = probabilities.T - np.eye(numlabels)[labels]
+    grad = (np.dot(features.T,delta) / N) + regularization*weights
+
+    if N > 1:
+        pred = np.argmax(probabilities, axis=0)
+    else:
+        pred = np.argmax(probabilities)
+
+    if nopredictions:
+        return cost, grad
+    else:
+        return cost, grad, pred
+
+
+def softmax_wrapper(features, labels, weights, regularization = 0.0):
+    cost, grad, _ = softmax_cost_grads_reg(features, labels, weights, regularization)
+    return cost, grad
 
 
 def negative_sampling(input_vector, output_vectors, target_index, dataset, K=10):
@@ -189,22 +241,14 @@ def word2vec_sgd_wrapper(word2vec_model, tokens, word_vectors, dataset, C,
         C1 = random.randint(1,C)
         centerword, context = dataset.getRandomContext(C1) # Example of output: ('c', ['a', 'b', 'e'])
 
-        '''
-        # Maybe you can remove it
-        if word2vec_model == skipgram:
-            denom = 1
-        else:
-            denom = 1
-        '''
-
         c, gin, gout = word2vec_model(centerword, C1, context, tokens,
                                       input_vectors, output_vectors, dataset,
                                       word2vec_gradient)
 
-        cost += c / batchsize # / denom
+        cost += c / batchsize
 
-        grad[:int(m/2),:] += gin.T / batchsize # / denom
-        grad[int(m/2):,] += gout / batchsize # / denom
+        grad[:int(m/2),:] += gin.T / batchsize
+        grad[int(m/2):,] += gout / batchsize
 
     return cost, grad
 
