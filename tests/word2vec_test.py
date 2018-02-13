@@ -4,6 +4,10 @@ import sys
 sys.path.insert(0, "./")
 from word2vec import *
 from gradient_check_naive import *
+sys.path.insert(1, "./applications/sentiment")
+from stanford import *
+from sent_utils import *
+from stochastic_gradient_descent import *
 
 
 def test_normalize_rows():
@@ -85,43 +89,6 @@ def test_negative_sampling():
     print("\033[92m" + "... end test" + "\033[0m")
 
 
-def word2vec_sgd_wrapper(word2vec_model, tokens, word_vectors, dataset, C,
-                         word2vec_gradient=softmax_cost_grads):
-    # It defines number of samples that going to be propagated through the network.
-    # It means that each 50 samples you update your parameters (efficient reasons)
-    batchsize = 50
-    cost = 0.0
-    grad = np.zeros(word_vectors.shape) # (m,n) Zero matrix for the gradients
-    m = word_vectors.shape[0] # Number of different words in the vocabulary
-
-    # Matrices of parameters for the forward propagation
-    input_vectors = word_vectors[:int(m/2),:]
-    output_vectors = word_vectors[int(m/2):,]
-
-    params, h_params = initialize_word2vec_parameters(input_vectors, output_vectors)
-
-    for i in range(batchsize):
-
-        # Randomize center word and context word generation
-        C1 = random.randint(1,C)
-        centerword, context = dataset.getRandomContext(C1) # Example of output: ('c', ['a', 'b', 'e'])
-
-        # Maybe you can remove it
-        if word2vec_model == skipgram:
-            denom = 1
-        else:
-            denom = 1
-
-        c, gin, gout = word2vec_model(
-            centerword, C1, context, tokens, params, h_params,
-            dataset, word2vec_gradient)
-        cost += c / batchsize / denom
-        grad[:int(m/2),:] += gin.T / batchsize / denom
-        grad[int(m/2):,] += gout / batchsize / denom
-
-    return cost, grad
-
-
 def test_word2vec():
     print("\n" + "\033[92m" + "Test Word2Vec models with softmax and negative sampling gradients ..." + "\033[0m")
     dataset = type('dummy', (), {})() # It creates class dynamically and creates an instance of it
@@ -151,7 +118,40 @@ def test_word2vec():
     print("\033[92m" + "... end test" + "\033[0m")
 
 
+def test_word2vec_with_reg():
+    print("\n" + "\033[92m" + "Test Word2Vec models with softmax and regularization ..." + "\033[0m")
+
+    random.seed(314159)
+    np.random.seed(265)
+
+    dataset = StanfordSentiment()
+    tokens = dataset.tokens()
+    nWords = len(tokens)
+
+    _, wordVectors0, _ = load_saved_params()
+    wordVectors = (wordVectors0[:nWords,:] + wordVectors0[nWords:,:])
+    dimVectors = wordVectors.shape[1]
+
+    dummy_weights = 0.1 * np.random.randn(dimVectors, 5)
+    dummy_features = np.zeros((10, dimVectors))
+    dummy_labels = np.zeros((10,), dtype=np.int32)
+
+    for i in range(10):
+        words, dummy_labels[i] = dataset.getRandomTrainSentence()
+        dummy_features[i, :] = getSentenceFeature(tokens, wordVectors, words)
+
+    print("==== Gradient check for softmax regression ====")
+    gradient_check_naive(lambda weights: softmax_cost_grads_reg(dummy_features,
+        dummy_labels, weights, 1.0, nopredictions = True), dummy_weights)
+
+    print("\n=== Results ===")
+    print(softmax_cost_grads_reg(dummy_features, dummy_labels, dummy_weights, 1.0))
+
+    print("\033[92m" + "... end test" + "\033[0m")
+
+
 if __name__ == "__main__":
     test_normalize_rows()
     test_negative_sampling()
     test_word2vec()
+    test_word2vec_with_reg()
