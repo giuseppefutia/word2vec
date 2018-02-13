@@ -69,6 +69,7 @@ def test_softmax_and_its_gradient():
     test1, cache = softmax(np.array([1,2]))
     print(test1)
     ans1 = np.array([0.26894142,  0.73105858])
+
     assert np.allclose(test1, ans1, rtol=1e-05, atol=1e-06)
 
     test2, cache = softmax(np.array([[1001,3],[1002,4]]))
@@ -76,6 +77,7 @@ def test_softmax_and_its_gradient():
     ans2 = np.array([
         [0.26894142, 0.26894142],
         [0.73105858, 0.73105858]])
+
     assert np.allclose(test2, ans2, rtol=1e-05, atol=1e-06)
 
     #test1_grad = softmax_grad(np.array([1,2]))

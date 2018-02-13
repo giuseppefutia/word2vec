@@ -3,6 +3,7 @@
 import numpy as np
 import random
 
+
 def gradient_check_naive(f, x):
     """
     Gradient check for a function f
