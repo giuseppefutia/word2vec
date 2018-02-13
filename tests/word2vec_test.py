@@ -129,7 +129,7 @@ def test_word2vec_with_reg():
     nWords = len(tokens)
 
     _, wordVectors0, _ = load_saved_params()
-    wordVectors = (wordVectors0[:nWords,:] + wordVectors0[nWords:,:])
+    wordVectors = wordVectors0[:nWords,:] + wordVectors0[nWords:,:]
     dimVectors = wordVectors.shape[1]
 
     dummy_weights = 0.1 * np.random.randn(dimVectors, 5)
