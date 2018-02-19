@@ -34,9 +34,6 @@ for i in range(nTrain):
     words, trainLabels[i] = trainset[i]
     trainFeatures[i, :] = getSentenceFeature(tokens, wordVectors, words)
 
-print("trainLabels.shape")
-print(trainLabels.shape)
-
 # Prepare dev set features
 devset = dataset.getDevSentences()
 nDev = len(devset)
