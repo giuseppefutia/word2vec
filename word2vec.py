@@ -245,6 +245,7 @@ def word2vec_sgd_wrapper(word2vec_model, tokens, word_vectors, dataset, C,
                                       input_vectors, output_vectors, dataset,
                                       word2vec_gradient)
 
+        # In the mini-batch approach, you divide all things for the batchsize
         cost += c / batchsize
 
         grad[:int(m/2),:] += gin.T / batchsize
