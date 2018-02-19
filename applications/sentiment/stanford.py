@@ -49,6 +49,7 @@ class StanfordSentiment:
         tokenfreq["UNK"] = 1
         wordcount += 1
 
+        # Remember: len(tokens) is equals to len(revtokens)
         self._tokens = tokens
         self._tokenfreq = tokenfreq
         self._wordcount = wordcount
@@ -103,17 +104,33 @@ class StanfordSentiment:
 
 
     def allSentences(self):
+        """
+        Purify sentences of all common words
+
+        Returns:
+        allSentences -- Returns all sentences "purified" of all commons words
+        """
         if hasattr(self, "_allsentences") and self._allsentences:
             return self._allsentences
 
+        # Example of a single sentence:
+        # [b'the', b'rock', b'is', b'destined', b'to', b'be', b'the', b'21st', b'century', b"'s", b'new', b'``', b'conan', b"''", b'and', b'that', b'he', b"'s", b'going', b'to', b'make', b'a', b'splash', b'even', b'greater', b'than', b'arnold', b'schwarzenegger', b',', b'jean-claud', b'van', b'damme', b'or', b'steven', b'segal', b'.']
         sentences = self.sentences()
+        # Example of rejectProb[0] 0.985020880779 in the case of the token b'the'
         rejectProb = self.rejectProb()
+        # Example of tokens['b,the'] is 0 because it is the first word of all sentences
         tokens = self.tokens()
+
         allsentences = [[w for w in s
             if 0 >= rejectProb[tokens[w]] or random.random() >= rejectProb[tokens[w]]]
             for s in sentences * 30]
 
         allsentences = [s for s in allsentences if len(s) > 1]
+
+        # Is sentence[0] =
+        # [b'the', b'rock', b'is', b'destined', b'to', b'be', b'the', b'21st', b'century', b"'s", b'new', b'``', b'conan', b"''", b'and', b'that', b'he', b"'s", b'going', b'to', b'make', b'a', b'splash', b'even', b'greater', b'than', b'arnold', b'schwarzenegger', b',', b'jean-claud', b'van', b'damme', b'or', b'steven', b'segal', b'.']
+        # All sentences[0] =
+        # [b'be', b'century', b'conan', b'he', b'arnold', b'jean-claud', b'van', b'damme', b'steven', b'segal']
 
         self._allsentences = allsentences
 
@@ -121,17 +138,42 @@ class StanfordSentiment:
 
 
     def getRandomContext(self, C=5):
+        """
+        Extract the center word and the context to train a Word2Vec model
+
+        Returns:
+        centerword -- center word for skip-gram model
+        context -- list of context words for skip-gram model
+        """
+        # Sentences purified by common words
         allsent = self.allSentences()
+        # Randomly get one sentence
         sentID = random.randint(0, len(allsent) - 1)
         sent = allsent[sentID]
+        # Randomly get one word of this sentence
         wordID = random.randint(0, len(sent) - 1)
-
         context = sent[max(0, wordID - C):wordID]
+
+        # If the purified sentence is equals to
+        # [b'sermonizing', b'lifeless', b'paean', b'teenage', b'dullards']
+        # and the WordID is equals to 2
+        # then context is equals to [b'sermonizing', b'lifeless']
+        # This happens in case in which wordID is less than C (context window)
+
         if wordID+1 < len(sent):
             context += sent[wordID+1:min(len(sent), wordID + C + 1)]
 
         centerword = sent[wordID]
+
         context = [w for w in context if w != centerword]
+
+         # Example to understand previous lines:
+         # sent = [b'coarse', b'cliched', b'clunky', b'trifling', b'opposites', b'screenplay', b'demands', b'squanders', b'charms', b'sandra']
+         # len(sent) = 10
+         # if wordID == 6, then context is [b'clunky', b'trifling', b'opposites', b'screenplay']
+         # Adding new words to context, I obtain: [b'clunky', b'trifling', b'opposites', b'screenplay', b'squanders', b'charms', b'sandra']
+         # The center word is b'demands'
+         # The filnal context is [b'clunky', b'trifling', b'opposites', b'screenplay', b'squanders', b'charms', b'sandra']
 
         if len(context) > 0:
             return centerword, context
@@ -300,17 +342,29 @@ class StanfordSentiment:
 
 
     def rejectProb(self):
+        """
+        Reweight the probability of a token according to a specific threshold.
+        If the frequency of the token overcome this threshold, then you assign a probability between 0 and 1.
+        Otherwise the probability of the token is assigned to 0.
+
+        Returns:
+        rejectProb -- np.arry of probabilities values of each token reweighted according to a threshold
+
+        """
         if hasattr(self, '_rejectProb') and self._rejectProb is not None:
             return self._rejectProb
 
+        # If wordcount is 227246, the threshold is 2.27246
         threshold = 1e-5 * self._wordcount
-
         nTokens = len(self.tokens())
+        # You define a np array of probabilities with length equals to the number of tokens
         rejectProb = np.zeros((nTokens,))
+
         for i in range(nTokens):
+            # if revtokens[i] = b'the', the first item of tokenfreq is (b'the': 10128)
             w = self._revtokens[i]
             freq = 1.0 * self._tokenfreq[w]
-            # Reweigh
+            # Reweigh: # if the value of freq is less than the threshold (in other words if its frequency is less than 0.00001%) its probability is map to 0
             rejectProb[i] = max(0, 1 - np.sqrt(threshold / freq))
 
         self._rejectProb = rejectProb
