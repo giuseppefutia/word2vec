@@ -21,7 +21,7 @@ def test_normalize_rows():
 
 def test_negative_sampling():
     print("\n" + "\033[92m" + "Test negative_sampling() instructions..." + "\033[0m")
-    # Recall some instructions of negative sampling function to verify the correct behaviour
+    # Recall some scripts belonging to the negative sampling function to verify the correct behaviour
     # of different implemented operations
 
     input_vector = np.array([-0.27323645,0.12538062,0.95374082])
@@ -49,8 +49,8 @@ def test_negative_sampling():
     assert np.allclose(output_words, output_words_expected, rtol=1e-05, atol=1e-06)
 
     K = 10
+    
     directions = np.array([1] + [-1 for k in range(K)])
-
     delta, _ = sigmoid(np.dot(output_words, input_vector) * directions)
     delta_expected = np.array([0.70614176,0.5834337,0.63372281,0.40988622,
                                0.5834337 ,0.5834337,0.61446565,0.61446565,
@@ -92,6 +92,9 @@ def test_negative_sampling():
 def test_word2vec():
     print("\n" + "\033[92m" + "Test Word2Vec models with softmax and negative sampling gradients ..." + "\033[0m")
     dataset = type('dummy', (), {})() # It creates class dynamically and creates an instance of it
+
+    # dummySampleTokenIdx() and getRandomContext(C) implemented here represent dummy functions.
+    # A better implementation is available in applications/sentiment/stanford.py
 
     def dummySampleTokenIdx(): # It generates randomly an int between 0 and 4
         return random.randint(0, 4)
@@ -154,4 +157,4 @@ if __name__ == "__main__":
     test_normalize_rows()
     test_negative_sampling()
     test_word2vec()
-    # test_word2vec_with_reg() Commented for Travis compatibility
+    test_word2vec_with_reg()

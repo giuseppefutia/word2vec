@@ -309,6 +309,14 @@ class StanfordSentiment:
 
 
     def sampleTable(self):
+        """
+        Create a list of self._tablesize elements with indexes of tokens repeated
+        in such list according to implemented algorithm. Useful to randomly get
+        elements for negative sampling
+
+        Returns:
+        sampleTable -- list of tokens indexes
+        """
         if hasattr(self, '_sampleTable') and self._sampleTable is not None:
             return self._sampleTable
 
@@ -332,6 +340,14 @@ class StanfordSentiment:
 
         self._sampleTable = [0] * self.tablesize
 
+        # If self._revtokens[0] is equals to b'the',
+        # then is frequency (self._tokenfreq[self._revtokens[0]]) is equals to 10128.
+        # When I reweigh this value you obtain 1009.58472134.
+        # I calculate the frequency percentage using samplingFreq /= np.sum(samplingFreq):
+        # I obtain 0.0135592070799 (a sort of softmax without exponential).
+        # Then I multiply this value for the tablesize (1000000) and I obtain 13559.2070799
+        # and for each position I calculate the cumulative sum.
+
         j = 0
         for i in range(self.tablesize):
             while i > samplingFreq[j]:
@@ -343,12 +359,12 @@ class StanfordSentiment:
 
     def rejectProb(self):
         """
-        Reweight the probability of a token according to a specific threshold.
+        rewigh the probability of a token according to a specific threshold.
         If the frequency of the token overcome this threshold, then you assign a probability between 0 and 1.
         Otherwise the probability of the token is assigned to 0.
 
         Returns:
-        rejectProb -- np.arry of probabilities values of each token reweighted according to a threshold
+        rejectProb -- np.arry of probabilities values of each token rewighed according to a threshold
 
         """
         if hasattr(self, '_rejectProb') and self._rejectProb is not None:
