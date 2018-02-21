@@ -63,7 +63,7 @@ To test the accuracy of the trained model using regularization, you can launch t
 python applications/sentiment/test.py 
 ```
 
-This test is performed is used exploiting different version of regularization. With the developed model you obtain the following results in terms of accuracy.
+This test is performed exploiting different values of regularization. With the developed model you obtain the following results in terms of accuracy.
 
 |Regularization|Train Acc|Dev Acc|
 |--------------|---------|-------|
