@@ -128,7 +128,7 @@ def compute_cost(AL, Y):
     """
 
     # Compute loss from AL and Y.
-    #cost = cross_entropy_cost(AL, Y)
+    # cost = cross_entropy_cost(AL, Y)
 
     m = AL.shape[1]
     log_probs = np.multiply(-np.log(AL), Y) + np.multiply(-np.log(1 - AL), 1 - Y)

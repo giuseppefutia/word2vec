@@ -49,7 +49,7 @@ def test_negative_sampling():
     assert np.allclose(output_words, output_words_expected, rtol=1e-05, atol=1e-06)
 
     K = 10
-    
+
     directions = np.array([1] + [-1 for k in range(K)])
     delta, _ = sigmoid(np.dot(output_words, input_vector) * directions)
     delta_expected = np.array([0.70614176,0.5834337,0.63372281,0.40988622,
