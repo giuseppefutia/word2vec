@@ -39,7 +39,7 @@ Only the Skip-Gram model is currently available in this repository. In order to 
 python tests/word2vec_test.py 
 ```
 
-The model has been trained using the [Sentiment Treebank](https://nlp.stanford.edu/sentiment/treebank.html) dataset built by the Stanford NLP Group. Datasets has been published in this repository:
+The model has been trained using the [Sentiment Treebank](https://nlp.stanford.edu/sentiment/treebank.html) dataset built by the Stanford NLP Group. Such datasets are published in this repository:
 
 ```
 datasets/stanford-sentiment-tree-bank/
@@ -63,7 +63,7 @@ To test the accuracy of the trained model using regularization, you can launch t
 python applications/sentiment/test.py 
 ```
 
-This test is performed is used exploiting different version of regularization. With the developed model you obtain the following results in terms of accuracy.
+This test is performed exploiting different values of regularization. With the developed model you obtain the following results in terms of accuracy.
 
 |Regularization|Train Acc|Dev Acc|
 |--------------|---------|-------|
