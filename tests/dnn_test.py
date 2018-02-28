@@ -106,8 +106,8 @@ def test_forward_propagation():
 def test_compute_cost():
     print("\nTest compute_cost()... ")
 
-    Y = np.array([[1,1,1]])
-    AL = np.array([[.8,.9,.4]])
+    Y = np.array([[1,1,1], [0,0,0]])
+    AL = np.array([[.8,.9,.4], [0.2, 0.3, 0.5]])
     cost = compute_cost(AL, Y)
     print("cost = " + str(cost))
     cost_expected = 0.414931599615
