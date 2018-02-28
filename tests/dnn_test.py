@@ -106,7 +106,7 @@ def test_forward_propagation():
 def test_compute_cost():
     print("\nTest compute_cost()... ")
 
-    Y = np.asarray([[1,1,1]])
+    Y = np.array([[1,1,1]])
     AL = np.array([[.8,.9,.4]])
     cost = compute_cost(AL, Y)
     print("cost = " + str(cost))

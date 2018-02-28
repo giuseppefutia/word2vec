@@ -115,9 +115,27 @@ def forward_propagation(X, parameters, hyper_parameters):
     return A, caches
 
 
+def compute_loss(AL, Y):
+    """
+    Compute the cross-entropy loss.
+
+    Arguments:
+    AL -- probability vector corresponding to your label predictions, shape (1, number of examples)
+    Y -- true "label" vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of examples)
+
+    Returns:
+    loss -- cross-entropy loss
+    """
+    # In case of loss of logistic regression you can compute np.multiply(-np.log(AL), Y) + np.multiply(-np.log(1 - AL), 1 - Y)
+    # but I prefer to generalize the loss function for multiclass problems
+    loss = Y * np.log(AL)
+
+    return loss
+
+
 def compute_cost(AL, Y):
     """
-    Compute the cost.
+    Compute the average of the loss contribution for each sample
 
     Arguments:
     AL -- probability vector corresponding to your label predictions, shape (1, number of examples)
@@ -126,15 +144,9 @@ def compute_cost(AL, Y):
     Returns:
     cost -- cross-entropy cost
     """
-
-    # Compute loss from AL and Y.
-    # cost = cross_entropy_cost(AL, Y)
-
     m = AL.shape[1]
-    log_probs = np.multiply(-np.log(AL), Y) + np.multiply(-np.log(1 - AL), 1 - Y)
-    cost = (1. / m) * np.sum(log_probs)
+    cost = - (1. / m) * np.sum(compute_loss(AL, Y))
     cost = np.squeeze(cost) # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
-    assert(cost.shape == ())
 
     return cost
 
