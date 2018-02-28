@@ -250,7 +250,12 @@ def test_backpropagation():
 
     caches = (linear_cache_activation_1, linear_cache_activation_2)
 
-    grads = backpropagation(AL, Y, caches)
+    hyper_parameters = {}
+    hyper_parameters["activations"] = {}
+    hyper_parameters["activations"][1] = "relu"
+    hyper_parameters["activations"][2] = "sigmoid"
+
+    grads = backpropagation(AL, Y, caches, hyper_parameters)
 
     print(grads)
 

@@ -204,22 +204,22 @@ def linear_activation_backward(dA, cache, activation):
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
     elif activation == "softmax":
-        dZ = softmax_grad(activation_cache) # XXX Verify if you need to change API
+        dZ = softmax_grad(dA, activation_cache)
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
     return dA_prev, dW, db
 
 
-def backpropagation(AL, Y, caches):
+def backpropagation(AL, Y, caches, hyper_parameters):
     """
-    Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group
+    Implement the backward propagation
 
     Arguments:
-    AL -- probability vector, output of the forward propagation (L_model_forward())
+    AL -- probability vector, output of the forward propagation
     Y -- true "label" vector (containing 0 if non-cat, 1 if cat)
-    caches -- list of caches containing:
-                every cache of linear_activation_forward() with "relu" (it's caches[l], for l in range(L-1) i.e l = 0...L-2)
-                the cache of linear_activation_forward() with "sigmoid" (it's caches[L-1])
+    caches -- list of caches containing every cache of linear_activation_forward() with the activation layer
+    hyper_parameters -- hyper parameters of the networks (in this case I need activation functions)
+
 
     Returns:
     grads -- A dictionary with the gradients
@@ -229,23 +229,26 @@ def backpropagation(AL, Y, caches):
     """
     grads = {}
     L = len(caches) # the number of layers
-    m = AL.shape[1]
+    m = AL.shape[1] # the number of samples at the output layer
     Y = Y.reshape(AL.shape) # after this line, Y has the same shape of AL
 
-    # Initializing the backpropagation
-    dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+    # The first step of the backpropagation changes according to the activation function of the last layer
+    if (hyper_parameters["activations"][L] == "sigmoid"):
+        # Compute the derivative of the cross entropy cost for logistic regression:
+        # np.multiply(-np.log(AL), Y) + np.multiply(-np.log(1 - AL), 1 - Y)
+        dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
 
-    # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "AL, Y, caches". Outputs: "grads["dAL"], grads["dWL"], grads["dbL"]
+    elif(hyper_parameters["activations"][L] == "softmax"):
+        # Compute the derivative of the cross entropy cost for a multilabel classifier
+        # Y * np.log(AL)
+        dAL - np.divide(Y, AL)
+
     current_cache = caches[-1]
-    grads["dA" + str(L)], grads["dW" + str(L)], grads["db" + str(L)] = linear_backward(sigmoid_grad(dAL,
-                                                                                       current_cache[1]),
-                                                                                       current_cache[0])
+    grads["dA" + str(L)], grads["dW" + str(L)], grads["db" + str(L)] = linear_activation_backward(dAL, current_cache, hyper_parameters["activations"][L])
 
     for l in reversed(range(L-1)):
-        # lth layer: (RELU -> LINEAR) gradients.
-        # Inputs: "grads["dA" + str(l + 2)], caches". Outputs: "grads["dA" + str(l + 1)] , grads["dW" + str(l + 1)] , grads["db" + str(l + 1)]
         current_cache = caches[l]
-        dA_prev_temp, dW_temp, db_temp = linear_backward(relu_grad(grads["dA" + str(l + 2)], current_cache[1]), current_cache[0])
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads["dA" + str(l + 2)], current_cache, hyper_parameters["activations"][l+1])
         grads["dA" + str(l + 1)] = dA_prev_temp
         grads["dW" + str(l + 1)] = dW_temp
         grads["db" + str(l + 1)] = db_temp
@@ -284,6 +287,7 @@ def predict(X, y, parameters, hyper_parameters):
     Arguments:
     X -- data set of examples you would like to label
     parameters -- parameters of the trained model
+    hyper_parameters -- hyper parameters of the networks (in this case I need activation functions for the forward propagation)
 
     Returns:
     p -- predictions for the given dataset X
