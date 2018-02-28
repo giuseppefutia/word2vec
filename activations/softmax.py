@@ -37,9 +37,10 @@ def softmax(Z):
     return A, cache
 
 
-def softmax_grad(cache):
+def softmax_grad(dA, cache):
     """
     Arguments:
+    dA -- post-activation gradient
     cache -- 'Z' where we store for computing backward propagation efficiently
 
     Return:
@@ -56,7 +57,7 @@ def softmax_grad(cache):
     """
     Z = cache
     s = softmax(Z)[0].reshape(-1, 1)
-    dZ = np.diagflat(s) - np.dot(s, s.T)
+    dZ = dA * (np.diagflat(s) - np.dot(s, s.T))
 
     assert dZ.shape[0] == (Z.shape[0] * Z.shape[1])
 
@@ -83,7 +84,7 @@ def test_softmax_and_its_gradient():
     #test1_grad = softmax_grad(np.array([1,2]))
     #print(test1_grad)
 
-    test2_grad = softmax_grad(np.array([[1001,3],[1002,4]]))
+    test2_grad = softmax_grad(1, np.array([[1001,3],[1002,4]]))
     print(test2_grad)
     anstest2_grad = np.array([
         [ 0.19661193,-0.07232949,-0.19661193,-0.19661193],
