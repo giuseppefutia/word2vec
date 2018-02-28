@@ -74,7 +74,7 @@ def linear_activation_forward(A_prev, W, b, activation):
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         Z, linear_cache = linear_forward(A_prev, W, b)
         A = Z
-        activation_cache = linear_cache
+        activation_cache = Z
 
     assert (A.shape == (W.shape[0], A_prev.shape[1]))
     cache = (linear_cache, activation_cache)
