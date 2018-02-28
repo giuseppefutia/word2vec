@@ -60,7 +60,7 @@ def softmax_cost_grads(input_vector, output_vectors, target_index, dataset):
     # Backward propagation
 
     # First step
-    probabilities[target_index] -= 1 # (n_words,1)
+    probabilities[target_index] -= 1 # (n_words, 1)
     delta_out = probabilities
     delta_out = delta_out.reshape(probabilities.shape[0]) # (n_words,)
 

@@ -147,9 +147,6 @@ def test_word2vec_with_reg():
     gradient_check_naive(lambda weights: softmax_cost_grads_reg(dummy_features,
         dummy_labels, weights, 1.0, nopredictions = True), dummy_weights)
 
-    print("\n=== Results ===")
-    print(softmax_cost_grads_reg(dummy_features, dummy_labels, dummy_weights, 1.0))
-
     print("\033[92m" + "... end test" + "\033[0m")
 
 
