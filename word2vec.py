@@ -204,10 +204,6 @@ def skipgram(current_word, C, context_words, tokens, input_vectors,
     # Compute the cost and the gradient for each context word
     for context in context_words:
 
-        Y = np.zeros(len(tokens))
-        Y[tokens[context]] = 1
-        Y = Y.reshape(len(tokens),1)
-
         input_vector = input_vectors[:,idx]
         input_vector = input_vector.reshape(1, input_vector.shape[0])
 
