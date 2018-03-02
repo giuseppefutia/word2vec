@@ -4,8 +4,10 @@ import numpy as np
 import random
 import sys
 sys.path.insert(0, "./activations")
+sys.path.insert(1, "./utils")
 from softmax import *
 from dnn import *
+from gradient_check import *
 
 """
 This is a didactic implementation of Word2Vec just to reuse the general purpose feed-forward
@@ -42,6 +44,7 @@ def word2vec_forward(X, parameters, hyper_parameters):
 def word2vec_backward(AL, Y, caches, hyper_parameters):
     # For more details on the backward propagation implementation see dnn.py
     gradients = backpropagation(AL, Y, caches, hyper_parameters)
+
     return gradients
 
 
@@ -140,7 +143,7 @@ def test_w2v():
 
     print(new_parameters)
 
-    print("\nAnother forward propagation with new parameters...")
+    print("\nAnother forward propagation step with new parameters...")
 
     AL, caches = word2vec_forward(X, new_parameters, hyper_parameters)
 
