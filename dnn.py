@@ -69,7 +69,7 @@ def linear_activation_forward(A_prev, W, b, activation):
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = softmax(Z)
 
-    elif activation == "linear":
+    if activation == "linear":
         # A particular case in which there is no activation function (useful for Word2Vec)
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         Z, linear_cache = linear_forward(A_prev, W, b)
@@ -127,8 +127,10 @@ def compute_loss(AL, Y):
     loss -- cross-entropy loss
     """
     # In case of loss of logistic regression you can compute np.multiply(-np.log(AL), Y) + np.multiply(-np.log(1 - AL), 1 - Y)
-    # but I prefer to generalize the loss function for multiclass problems
-    loss = Y * np.log(AL)
+    # but I prefer to generalize the loss function for multiclass problems.
+    # Cross entropy indicates the distance between what the model believes the output distribution should be, and what the original distribution really is
+    loss = - Y * np.log(AL)
+    loss = np.squeeze(np.sum(loss))
 
     return loss
 
@@ -145,7 +147,7 @@ def compute_cost(AL, Y):
     cost -- cross-entropy cost
     """
     m = AL.shape[1]
-    cost = - (1. / m) * np.sum(compute_loss(AL, Y))
+    cost = (1. / m) * np.sum(compute_loss(AL, Y))
     cost = np.squeeze(cost) # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
 
     return cost
@@ -199,12 +201,18 @@ def linear_activation_backward(dA, cache, activation):
         dZ = relu_grad(dA, activation_cache)
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
-    if activation == "sigmoid":
+    elif activation == "sigmoid":
         dZ = sigmoid_grad(dA, activation_cache)
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
     elif activation == "softmax":
         dZ = softmax_grad(dA, activation_cache)
+        rows, cols = np.nonzero(dZ)
+        dZ_reshaped = dZ[rows, cols].reshape([dZ.shape[0], 1])
+        dA_prev, dW, db = linear_backward(dZ_reshaped, linear_cache)
+
+    elif activation == "linear":
+        dZ = dA
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
     return dA_prev, dW, db
@@ -239,9 +247,10 @@ def backpropagation(AL, Y, caches, hyper_parameters):
         dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
 
     elif(hyper_parameters["activations"][L] == "softmax"):
-        # Compute the derivative of the cross entropy cost for a multilabel classifier
+        # Compute the derivative of the cross entropy cost for a multilabel classifier.
         # Y * np.log(AL)
-        dAL - np.divide(Y, AL)
+        # You obtain a vector like [0,0,0,1/AL,0] because all elements of vector Y are 0s except 1
+        dAL = - np.divide(Y, AL)
 
     current_cache = caches[-1]
     grads["dA" + str(L)], grads["dW" + str(L)], grads["db" + str(L)] = linear_activation_backward(dAL, current_cache, hyper_parameters["activations"][L])
