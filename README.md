@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/giuseppefutia/word2vec.svg?branch=master)](https://travis-ci.org/giuseppefutia/word2vec)
 # Word2Vec
 Implementation of the Word2Vec Skip-Gram model.
 
